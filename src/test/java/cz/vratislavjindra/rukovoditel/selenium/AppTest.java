@@ -1,5 +1,6 @@
-package cz.vse.selenium;
+package cz.vratislavjindra.rukovoditel.selenium;
 
+import cz.vratislavjindra.rukovoditel.selenium.utils.Constants;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,5 +19,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AppTest {
 
-    private ChromeDriver chromeDriver;
+    public static final String URL_PREFIX = "https://digitalnizena.cz/rukovoditel/";
+    private ChromeDriver driver;
+
+    @Before
+    public void init() {
+        System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/chromedriver.exe");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    @After
+    public void tearDown() {
+        driver.close();
+    }
 }
