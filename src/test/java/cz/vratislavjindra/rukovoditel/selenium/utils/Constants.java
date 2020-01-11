@@ -8,5 +8,12 @@ package cz.vratislavjindra.rukovoditel.selenium.utils;
  */
 public class Constants {
 
-    public static final String URL_PREFIX = "https://digitalnizena.cz/rukovoditel/";
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private Constants() {
+    }
+
+    public static final int DEFAULT_WAIT_SECONDS = 3;
+    public static final String TESTING_URL = "https://digitalnizena.cz/rukovoditel/";
 }
