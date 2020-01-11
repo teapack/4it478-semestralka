@@ -13,13 +13,7 @@ import org.junit.Test;
 public class ValidLoginTest extends BaseLoginTest {
 
     // The user who attempts to log in.
-    User user;
-
-    @Override
-    public void init() {
-        super.init();
-        user = User.SYSTEM_ADMINISTRATOR;
-    }
+    User user = User.SYSTEM_ADMINISTRATOR;
 
     /**
      * Tests that we can log in using valid credentials.

@@ -25,6 +25,6 @@ public class CreateProjectWithoutNameTest extends BaseProjectTest {
         // WHEN we click on the save button
         clickOnSaveButton();
         // THEN no project is saved (error label is displayed)
-        checkSaveProjectResult(false);
+        checkSaveProjectResult(false, null);
     }
 }

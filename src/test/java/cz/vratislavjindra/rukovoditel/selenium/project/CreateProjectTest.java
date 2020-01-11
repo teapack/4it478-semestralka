@@ -11,7 +11,7 @@ import java.util.UUID;
  * @author Vratislav Jindra
  * @version 202001111537
  */
-public class CreateProjectTestSuccessful extends BaseProjectTest {
+public class CreateProjectTest extends BaseProjectTest {
 
     // Name of the project which we're creating.
     private String projectName;
@@ -20,6 +20,14 @@ public class CreateProjectTestSuccessful extends BaseProjectTest {
     public void init() {
         super.init();
         projectName = "jinv00-" + UUID.randomUUID().toString();
+    }
+
+    @Override
+    public void tearDown() {
+        clickOnDeleteProjectButton();
+        confirmDeletion(projectName);
+        resetSearch(true);
+        super.tearDown();
     }
 
     /**
@@ -44,8 +52,9 @@ public class CreateProjectTestSuccessful extends BaseProjectTest {
         // WHEN we click on the save button
         clickOnSaveButton();
         // THEN project with the specified parameters is saved
-        checkSaveProjectResult(true);
-        // AND we can find the
-
+        checkSaveProjectResult(true, projectName);
+        // AND the new project can be found in the projects list
+        clickOnProjectsMenuItem();
+        filterProjectsByName(projectName);
     }
 }

@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Base class for testing the projects functionality of the app.
@@ -36,12 +37,15 @@ public abstract class BaseProjectTest extends BaseTest {
      * @param shouldBeSaved True if the expected save project operations is expected to be successful (if project is
      *                      expected to be saved), false otherwise.
      */
-    void checkSaveProjectResult(boolean shouldBeSaved) {
-        if (shouldBeSaved) {
-
+    void checkSaveProjectResult(boolean shouldBeSaved, String projectName) {
+        if (shouldBeSaved && projectName != null) {
+            WebElement newProjectNameLink = driver.findElement(By.linkText(projectName));
+            Assert.assertNotNull(newProjectNameLink);
+            Assert.assertEquals(projectName, newProjectNameLink.getText());
+            Assert.assertNotNull(driver.findElement(By.linkText("Project Info")));
         } else {
-            WebElement errorLabel = driver.findElement(By.id("fields_158-error"));
-            Assert.assertEquals("display: inline-block;", errorLabel.getAttribute("style"));
+            Assert.assertEquals("display: inline-block;", driver.findElement(By.id("fields_158-error"))
+                    .getAttribute("style"));
         }
     }
 
@@ -49,30 +53,41 @@ public abstract class BaseProjectTest extends BaseTest {
      * Performs click on the 'Add Project' button.
      */
     void clickOnAddProjectButton() {
-        WebElement addProjectButton = driver.findElement(By
-                .xpath("//button[@class='btn btn-primary'][.='Add Project']"));
-        addProjectButton.click();
+        driver.findElement(By.xpath("//button[@class='btn btn-primary'][.='Add Project']")).click();
     }
 
     /**
-     * Performs click on the 'projects' menu item.
+     * Performs click on the 'Delete Project' button.
      */
-    void clickOnProjectsMenuItem() {
-        WebElement projectsMenuItem = driver.findElement(By.linkText("Projects"));
-        projectsMenuItem.click();
-    }
-
-    /**
-     * Performs click on the 'Save' button.
-     */
-    void clickOnSaveButton() {
-        // Sometimes we have to wait until the save button appears.
+    void clickOnDeleteProjectButton() {
         WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
         wait.until((ExpectedCondition<Boolean>) webDriver -> {
-            WebElement saveButton = driver.findElement(By
-                    .xpath("//button[@class='btn btn-primary btn-primary-modal-action'][.='Save']"));
-            if (saveButton != null) {
-                saveButton.click();
+            WebElement deleteButton = driver.findElement(By.xpath("//a[@title='Delete']"));
+            if (deleteButton != null) {
+                deleteButton.click();
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Confirms deletion of a project with the given name.
+     *
+     * @param projectName Name of the project which we want to delete.
+     */
+    void confirmDeletion(@Nonnull String projectName) {
+        // Sometimes we have to wait until the confirmation dialog appears.
+        WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        wait.until((ExpectedCondition<Boolean>) webDriver -> {
+            WebElement alertMessage = driver.findElement(By.className("modal-body"));
+            if (alertMessage != null) {
+                Assert.assertTrue(alertMessage.getText().contains("Are you sure you want to delete \"" + projectName
+                        + "\"?"));
+                driver.findElement(By.id("delete_confirm")).click();
+                driver.findElement(By.xpath("//button[@class='btn btn-primary btn-primary-modal-action'][.='Delete']"))
+                        .click();
                 return true;
             } else {
                 return false;
@@ -86,8 +101,7 @@ public abstract class BaseProjectTest extends BaseTest {
      * @param date The date to be entered to the date field.
      */
     void enterDate(@Nonnull String date) {
-        WebElement dateInput = driver.findElement(By.id("fields_159"));
-        dateInput.sendKeys(date);
+        driver.findElement(By.id("fields_159")).sendKeys(date);
     }
 
     /**
@@ -97,27 +111,15 @@ public abstract class BaseProjectTest extends BaseTest {
      *                    everything is removed from the project name text area.
      */
     void enterProjectName(@Nullable String projectName) {
-        WebElement projectNameInput = driver.findElement(By.id("fields_158"));
-        if (projectName != null && !projectName.isEmpty()) {
-            projectNameInput.sendKeys(projectName);
-        } else {
-            projectNameInput.clear();
-        }
-    }
-
-    /**
-     * Selects the given value from the combo box with the specified ID.
-     *
-     * @param comboBoxId ID of the combo box from which we want to select a value.
-     * @param value      The value which we want to select.
-     */
-    void selectComboBoxValue(@Nonnull String comboBoxId, @Nonnull String value) {
         WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
         wait.until((ExpectedCondition<Boolean>) webDriver -> {
-            WebElement comboBoxWebElement = driver.findElement(By.id(comboBoxId));
-            if (comboBoxWebElement != null) {
-                Select comboBox = new Select(comboBoxWebElement);
-                comboBox.selectByValue(value);
+            WebElement projectNameInput = driver.findElement(By.id("fields_158"));
+            if (projectNameInput != null) {
+                if (projectName != null && !projectName.isEmpty()) {
+                    projectNameInput.sendKeys(projectName);
+                } else {
+                    projectNameInput.clear();
+                }
                 return true;
             } else {
                 return false;

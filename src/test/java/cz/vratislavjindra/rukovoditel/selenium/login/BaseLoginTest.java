@@ -22,11 +22,11 @@ public abstract class BaseLoginTest extends BaseTest {
      */
     void checkLoginResult(boolean shouldBeLoggedIn, User loggedInUser) {
         if (shouldBeLoggedIn) {
-            WebElement displayedName = driver.findElement(By.className("username"));
-            Assert.assertEquals(loggedInUser.getDisplayedName(), displayedName.getText());
+            Assert.assertEquals(loggedInUser.getDisplayedName(), driver.findElement(By.className("username"))
+                    .getText());
         } else {
-            WebElement alertMessage = driver.findElement(By.cssSelector(".alert.alert-danger"));
-            Assert.assertTrue(alertMessage.getText().contains("No match for Username and/or Password."));
+            Assert.assertTrue(driver.findElement(By.cssSelector(".alert.alert-danger")).getText()
+                    .contains("No match for Username and/or Password."));
         }
     }
 
@@ -35,8 +35,7 @@ public abstract class BaseLoginTest extends BaseTest {
      */
     void clickOnLoginButton() {
         // TODO Find a better way to locate the element.
-        WebElement loginButton = driver.findElement(By.cssSelector(".btn.btn-info.pull-right"));
-        loginButton.click();
+        driver.findElement(By.cssSelector(".btn.btn-info.pull-right")).click();
     }
 
     /**

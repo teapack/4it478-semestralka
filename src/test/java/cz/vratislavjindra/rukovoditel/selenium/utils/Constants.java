@@ -16,4 +16,5 @@ public class Constants {
 
     public static final int DEFAULT_WAIT_SECONDS = 3;
     public static final String TESTING_URL = "https://digitalnizena.cz/rukovoditel/";
+    public static final String THE_BEST_PROJECT_NAME = "vratislavjindra";
 }
