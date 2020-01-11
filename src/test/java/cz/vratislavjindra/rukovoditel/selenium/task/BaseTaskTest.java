@@ -3,6 +3,7 @@ package cz.vratislavjindra.rukovoditel.selenium.task;
 import cz.vratislavjindra.rukovoditel.selenium.BaseTest;
 import cz.vratislavjindra.rukovoditel.selenium.login.ValidLoginTest;
 import cz.vratislavjindra.rukovoditel.selenium.utils.Constants;
+import cz.vratislavjindra.rukovoditel.selenium.utils.TaskStatus;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -29,6 +30,26 @@ public class BaseTaskTest extends BaseTest {
         super.init();
         loginTest = new ValidLoginTest();
         loginTest.setChromeDriver(driver);
+    }
+
+    /**
+     * Cancels the given task status filter.
+     *
+     * @param taskStatusFilterToCancel The task status filter to cancel.
+     */
+    void cancelTaskStatusFilter(TaskStatus taskStatusFilterToCancel) {
+        WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        wait.until((ExpectedCondition<Boolean>) webDriver -> {
+            WebElement appliedFilter = driver.findElement(By.xpath("//*[@class='chosen-choices']/*/span[.='"
+                    + taskStatusFilterToCancel.getStatusTitle() + "']/.."));
+            if (appliedFilter != null) {
+                appliedFilter.findElement(By.className("search-choice-close")).click();
+                clickOnSaveButton();
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     /**
@@ -68,6 +89,13 @@ public class BaseTaskTest extends BaseTest {
      */
     void clickOnAddTaskButton() {
         driver.findElement(By.xpath("//button[@class='btn btn-primary'][.='Add Task']")).click();
+    }
+
+    /**
+     * Performs click on the applied filters.
+     */
+    void clickOnAppliedFilters() {
+        driver.findElement(By.className("filters-preview-condition-include")).click();
     }
 
     /**
@@ -179,6 +207,69 @@ public class BaseTaskTest extends BaseTest {
                     projectLink = driver.findElement(By.xpath("//a[@class='item_heading_link'][.='" + projectName
                             + "']"));
                     projectLink.click();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Sets the login test variable.
+     *
+     * @param loginTest The new login test variable.
+     */
+    void setLoginTest(ValidLoginTest loginTest) {
+        this.loginTest = loginTest;
+    }
+
+    /**
+     * Verifies the applied status filters.
+     *
+     * @param appliedStatusFilters The applied status filters.
+     */
+    void verifyAppliedStatusFilters(List<TaskStatus> appliedStatusFilters) {
+        // Verify the filter label
+        StringBuilder soughtStatusFilterText = new StringBuilder();
+        for (int i = 0; i < appliedStatusFilters.size(); i++) {
+            soughtStatusFilterText.append(appliedStatusFilters.get(i).getStatusTitle());
+            if (i + 1 < appliedStatusFilters.size()) {
+                soughtStatusFilterText.append(", ");
+            }
+        }
+        WebElement appliedStatusFiltersSpan = driver.findElement(By.className("filters-preview-condition-include"));
+        Assert.assertEquals(soughtStatusFilterText.toString(), appliedStatusFiltersSpan.getText());
+        // Verify the amount of filtered items
+        WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        wait.until((ExpectedCondition<Boolean>) webDriver -> {
+            WebElement filteredTasksAmountMessageDiv = driver.findElement(By
+                    .xpath("//div[@class='col-md-5 col-sm-12']"));
+            if (filteredTasksAmountMessageDiv != null) {
+                Assert.assertTrue(filteredTasksAmountMessageDiv.getText().contains(" (of " + appliedStatusFilters.size()
+                        + " items)"));
+                return true;
+            } else {
+                return false;
+            }
+        });
+        // Verify the actual items in table
+        WebDriverWait waitDriverWait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        waitDriverWait.until((ExpectedCondition<Boolean>) webDriver -> {
+            List<WebElement> tableRows = driver.findElements(By.cssSelector("tbody tr"));
+            if (tableRows != null && tableRows.size() == appliedStatusFilters.size()) {
+                boolean itemInTableIsInFilterList;
+                for (WebElement taskTableRow : tableRows) {
+                    WebElement taskStatus = taskTableRow.findElement(By
+                            .cssSelector(".fieldtype_dropdown.field-169-td"));
+                    itemInTableIsInFilterList = false;
+                    for (TaskStatus status : appliedStatusFilters) {
+                        if (status.getStatusTitle().equals(taskStatus.getText())) {
+                            itemInTableIsInFilterList = true;
+                            break;
+                        }
+                    }
+                    Assert.assertTrue(itemInTableIsInFilterList);
                 }
                 return true;
             } else {

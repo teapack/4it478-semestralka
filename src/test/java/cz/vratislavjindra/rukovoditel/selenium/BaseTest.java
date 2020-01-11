@@ -131,4 +131,13 @@ public abstract class BaseTest {
             }
         });
     }
+
+    /**
+     * Sets the Chrome web driver.
+     *
+     * @param driver The Chrome web driver to be set.
+     */
+    public void setChromeDriver(ChromeDriver driver) {
+        this.driver = driver;
+    }
 }

@@ -1,6 +1,7 @@
 package cz.vratislavjindra.rukovoditel.selenium.task;
 
 import cz.vratislavjindra.rukovoditel.selenium.utils.Constants;
+import cz.vratislavjindra.rukovoditel.selenium.utils.TaskStatus;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -9,18 +10,27 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.UUID;
 
+/**
+ * Class for testing the 'create task' test case.
+ *
+ * @author Vratislav Jindra
+ * @version 202001111944
+ */
 public class CreateTaskTest extends BaseTaskTest {
 
-    // Name of the task which we're creating.
-    private String taskName;
     // Description of the task which we're creating.
     private String taskDescription;
+    // Name of the task which we're creating.
+    private String taskName;
+    // The task status.
+    private TaskStatus taskStatus;
 
     @Override
     public void init() {
         super.init();
         taskName = "jinv00-" + UUID.randomUUID().toString();
         taskDescription = "jinv00-" + UUID.randomUUID().toString() + UUID.randomUUID().toString();
+        taskStatus = TaskStatus.NEW;
     }
 
     @Override
@@ -44,11 +54,11 @@ public class CreateTaskTest extends BaseTaskTest {
     }
 
     /**
-     * Tests that we can create a task with type 'Task', status 'New', priority 'Medium' and not empty name and some
+     * Tests that we can create a task with type 'Task, priority 'Medium' and not empty name and some
      * description.
      */
     @Test
-    public void shouldCreateTaskWithTypeTaskStatusNewPriorityMediumNotEmptyNameNoEmptyDescription() {
+    public void shouldCreateTaskWithTypeTaskPriorityMediumNotEmptyNameNoEmptyDescription() {
         // GIVEN we are logged in
         loginTest.shouldLoginUsingValidCredentials();
         // AND we are creating a new task at a project screen
@@ -60,8 +70,8 @@ public class CreateTaskTest extends BaseTaskTest {
         selectComboBoxValue("fields_167", "42");
         // AND some task name is filled
         enterTaskName(taskName);
-        // AND task status is set as 'New'
-        selectComboBoxValue("fields_169", "46");
+        // AND task status is set
+        selectComboBoxValue("fields_169", taskStatus.getStatusComboBoxValue());
         // AND task priority is set as 'Medium'
         selectComboBoxValue("fields_170", "55");
         // And some description is filled
@@ -76,6 +86,46 @@ public class CreateTaskTest extends BaseTaskTest {
         checkTaskDescription(taskDescription);
         checkTaskName(taskName);
         checkTaskAttribute("form-group-170", "Medium");
-        checkTaskAttribute("form-group-169", "New");
+        checkTaskAttribute("form-group-169", taskStatus.getStatusTitle());
+    }
+
+    /**
+     * Creates a task.
+     */
+    public void createTask() {
+        clickOnAddTaskButton();
+        selectComboBoxValue("fields_167", "42");
+        enterTaskName(taskName);
+        selectComboBoxValue("fields_169", taskStatus.getStatusComboBoxValue());
+        selectComboBoxValue("fields_170", "55");
+        enterTaskDescription(taskDescription);
+        clickOnSaveButton();
+    }
+
+    /**
+     * Sets the task description.
+     *
+     * @param taskDescription The new task description.
+     */
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
+    }
+
+    /**
+     * Sets the task name.
+     *
+     * @param taskName The new task name.
+     */
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    /**
+     * Sets the task status.
+     *
+     * @param taskStatus THe new task status.
+     */
+    public void setTaskStatus(TaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
     }
 }

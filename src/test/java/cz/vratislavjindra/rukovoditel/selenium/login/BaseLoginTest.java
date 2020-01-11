@@ -67,13 +67,4 @@ public abstract class BaseLoginTest extends BaseTest {
             usernameInput.sendKeys("_" + user.getUsername());
         }
     }
-
-    /**
-     * Sets the Chrome web driver.
-     *
-     * @param driver The Chrome web driver to be set.
-     */
-    public void setChromeDriver(ChromeDriver driver) {
-        this.driver = driver;
-    }
 }
