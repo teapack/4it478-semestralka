@@ -5,7 +5,6 @@ import cz.vratislavjindra.rukovoditel.selenium.utils.User;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 /**
  * Base class for testing login functionality of the app.
@@ -34,8 +33,7 @@ public abstract class BaseLoginTest extends BaseTest {
      * Performs click on the 'Login' button.
      */
     void clickOnLoginButton() {
-        // TODO Find a better way to locate the element.
-        driver.findElement(By.cssSelector(".btn.btn-info.pull-right")).click();
+        driver.findElement(By.xpath("//button[@class='btn btn-info pull-right'][.='Login']")).click();
     }
 
     /**

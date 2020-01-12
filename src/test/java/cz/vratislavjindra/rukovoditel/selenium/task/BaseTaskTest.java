@@ -21,7 +21,7 @@ import java.util.List;
  * @author Vratislav Jindra
  * @version 202001111742
  */
-public class BaseTaskTest extends BaseTest {
+public abstract class BaseTaskTest extends BaseTest {
 
     ValidLoginTest loginTest;
 
@@ -216,12 +216,68 @@ public class BaseTaskTest extends BaseTest {
     }
 
     /**
+     * Removes all applied filters.
+     */
+    void removeAllFilters() {
+        driver.findElement(By.xpath("//a[@title='Remove All Filters']")).click();
+        WebDriverWait webDriverWait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        webDriverWait.until((ExpectedCondition<Boolean>) webDriver -> {
+            WebElement filtersDeletedMessage = driver.findElement(By.cssSelector(".alert.alert-success"));
+            if (filtersDeletedMessage != null) {
+                Assert.assertTrue(filtersDeletedMessage.getText().contains("Filters deleted"));
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Sets the default filters.
+     */
+    void setDefaultFilters() {
+        driver.findElement(By.cssSelector(".btn.dropdown-toggle.btn-users-filters")).click();
+        driver.findElement(By.linkText("Default Filters")).click();
+    }
+
+    /**
      * Sets the login test variable.
      *
      * @param loginTest The new login test variable.
      */
     void setLoginTest(ValidLoginTest loginTest) {
         this.loginTest = loginTest;
+    }
+
+    /**
+     * Verifies that all tasks are displayed in a table.
+     *
+     * @param amountOfTasks  The amount of tasks which should be in the table.
+     * @param taskNamePrefix The task name prefix.
+     */
+    void verifyAllTasksAreDisplayed(int amountOfTasks, String taskNamePrefix) {
+        WebDriverWait waitDriverWait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        waitDriverWait.until((ExpectedCondition<Boolean>) webDriver -> {
+            List<WebElement> tableRows = driver.findElements(By.cssSelector("tbody tr"));
+            if (tableRows != null && tableRows.size() == amountOfTasks) {
+                boolean taskIsInTable;
+                for (WebElement taskTableRow : tableRows) {
+                    taskIsInTable = false;
+                    WebElement taskName = taskTableRow.findElement(By
+                            .cssSelector(".fieldtype_input.field-168-td.item_heading_td"));
+                    for (int i = 0; i < amountOfTasks; i++) {
+                        if (taskName.getText().equals(taskNamePrefix + i)) {
+                            taskIsInTable = true;
+                            break;
+                        }
+                    }
+                    Assert.assertTrue(taskIsInTable);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     /**
