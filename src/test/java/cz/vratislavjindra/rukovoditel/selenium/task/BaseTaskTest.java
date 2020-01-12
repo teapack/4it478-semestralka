@@ -106,7 +106,12 @@ public abstract class BaseTaskTest extends BaseTest {
         wait.until((ExpectedCondition<Boolean>) webDriver -> {
             WebElement taskInfoButton = driver.findElement(By.xpath("//a[@title='Info']"));
             if (taskInfoButton != null) {
-                taskInfoButton.click();
+                try {
+                    taskInfoButton.click();
+                } catch (StaleElementReferenceException e) {
+                    taskInfoButton = driver.findElement(By.xpath("//a[@title='Info']"));
+                    taskInfoButton.click();
+                }
                 return true;
             } else {
                 return false;
@@ -121,9 +126,16 @@ public abstract class BaseTaskTest extends BaseTest {
      *                        empty, everything will be removed from the task description text area.
      */
     void enterTaskDescription(@Nonnull String taskDescription) {
-        WebElement taskDescriptionIFrame = driver.findElement(By.cssSelector(".cke_wysiwyg_frame.cke_reset"));
-        driver.switchTo().frame(taskDescriptionIFrame);
         WebDriverWait wait = new WebDriverWait(driver, Constants.DEFAULT_WAIT_SECONDS);
+        wait.until((ExpectedCondition<Boolean>) webDriver -> {
+            WebElement taskDescriptionIFrame = driver.findElement(By.cssSelector(".cke_wysiwyg_frame.cke_reset"));
+            if (taskDescriptionIFrame != null) {
+                driver.switchTo().frame(taskDescriptionIFrame);
+                return true;
+            } else {
+                return false;
+            }
+        });
         wait.until((ExpectedCondition<Boolean>) webDriver -> {
             WebElement taskDescriptionInput = driver.findElement(By
                     .xpath("//body[@class='cke_editable cke_editable_themed cke_contents_ltr cke_show_borders']"));

@@ -4,6 +4,7 @@ import cz.vratislavjindra.rukovoditel.selenium.utils.Constants;
 import cz.vratislavjindra.rukovoditel.selenium.utils.TaskStatus;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -44,12 +45,19 @@ public class CreateTaskTest extends BaseTaskTest {
             WebElement deleteButton = driver.findElement(By
                     .xpath("//button[@class='btn btn-primary btn-primary-modal-action'][.='Delete']"));
             if (deleteButton != null) {
-                deleteButton.click();
+                try {
+                    deleteButton.click();
+                } catch (StaleElementReferenceException e) {
+                    deleteButton = driver.findElement(By
+                            .xpath("//button[@class='btn btn-primary btn-primary-modal-action'][.='Delete']"));
+                    deleteButton.click();
+                }
                 return true;
             } else {
                 return false;
             }
         });
+        resetSearch(true);
         super.tearDown();
     }
 
